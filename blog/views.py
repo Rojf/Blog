@@ -10,7 +10,7 @@ class PostListView(View):
         post_list = Post.published.all()
 
         paginator = Paginator(post_list, 10)
-        page_number = request.Get.get('page', 1)
+        page_number = request.GET.get('page', 1)
 
         try:
             posts = paginator.page(page_number)

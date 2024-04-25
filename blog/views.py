@@ -5,10 +5,11 @@ from .models import Post
 
 def post_list(request):
     posts = Post.published.all()
+    print(posts[0].get_absolute_url)
     return render(request, 'blog/post/list.html', {'posts': posts})
 
 
-def post_detail(request, id):
-    post = get_object_or_404(Post, id=id, status=Post.Status.PUBLISHED)
+def post_detail(request, pk):
+    post = get_object_or_404(Post, id=pk, status=Post.Status.PUBLISHED)
 
     return render(request, 'blog/post/detail.html', {'post': post})

@@ -1,3 +1,5 @@
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
@@ -28,6 +30,7 @@ class Post(models.Model):
 
     objects = models.Manager()
     published = PublishedManager()
+    search_vector = SearchVectorField(null=True)
 
     tags = TaggableManager()
 
@@ -35,6 +38,7 @@ class Post(models.Model):
         ordering = ['-publish']
         indexes = [
             models.Index(fields=['-publish']),
+            GinIndex(fields=['search_vector']),
         ]
 
     def __str__(self):

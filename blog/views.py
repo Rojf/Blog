@@ -1,36 +1,35 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
 from django.db.models import Count
-from django.views import View
 
 from taggit.models import Tag
 
 from blog.models import Post
-from blog.forms import EmailPostForm, CommentForm
+from blog.forms import EmailPostForm, CommentForm, SearchForm
 
 
-class PostListView(View):
-    def get(self, request, tag_slug=None):
-        post_list = Post.published.all()
+def post_list_view(request, tag_slug=None):
+    post_list = Post.published.all()
 
-        tag = None
-        if tag_slug:
-            tag = get_object_or_404(Tag, slug=tag_slug)
-            post_list = post_list.filter(tags__in=[tag])
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        post_list = post_list.filter(tags__in=[tag])
 
-        paginator = Paginator(post_list, 10)
-        page_number = request.GET.get('page', 1)
+    paginator = Paginator(post_list, 10)
+    page_number = request.GET.get('page', 1)
 
-        try:
-            posts = paginator.page(page_number)
-        except PageNotAnInteger:
-            posts = paginator.page(1)
-        except EmptyPage:
-            posts = paginator.page(paginator.num_pages)
+    try:
+        posts = paginator.page(page_number)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
 
-        return render(request, "blog/post/list.html", {'posts': posts, 'tag': tag})
+    return render(request, "blog/post/list.html", {'posts': posts, 'tag': tag})
 
 
 def post_detail(request, year, month, day, post):
@@ -87,3 +86,22 @@ def post_comment(request, post_id):
 
     return render(request, 'blog/post/comment.html',
                   {'post': post, 'form': form, 'comment': comment})
+
+
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            search_query = SearchQuery(query)
+            print(search_query)
+            results = Post.published.annotate(rank=SearchRank('search_vector', search_query)
+                                              ).filter(search_vector=search_query).order_by('-rank')
+
+    return render(request, 'blog/post/search.html',
+                  {'form': form, 'query': query, 'results': results}
+                  )

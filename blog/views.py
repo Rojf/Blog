@@ -97,10 +97,14 @@ def post_search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
-            search_query = SearchQuery(query)
-            print(search_query)
-            results = Post.published.annotate(rank=SearchRank('search_vector', search_query)
-                                              ).filter(search_vector=search_query).order_by('-rank')
+
+            search_query = SearchQuery(query, config='english') | SearchQuery(query, config='russian')
+
+            print(dir(search_query))
+
+            results = Post.published.annotate(
+                rank=SearchRank('search_vector', search_query)
+            ).filter(search_vector=search_query).order_by('-rank')
 
     return render(request, 'blog/post/search.html',
                   {'form': form, 'query': query, 'results': results}

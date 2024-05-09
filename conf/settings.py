@@ -140,3 +140,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_POSSWORD = 'your_pass'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
+
+# The size of the building. The number of objects displayed on one page.
+PAGE_SIZE = 10

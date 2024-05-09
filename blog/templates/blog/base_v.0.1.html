@@ -1,0 +1,88 @@
+{% load static %}
+{% load blog_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+    </head>
+    <body class="page">
+        <header class="page-header">
+            <div class="page-header__inner">
+                <div class="page-header__top">
+                    <div class="page-header__logo">
+                        <a class="page-header__logo Link link" href="{% url 'blog:post_list' %}" aria-label="My Blog">My blog</a>
+                    </div>
+                    <nav class="page-header__main-menu" aria-label="The main menu" itemscope="itemscope"
+                     itemtype="http://www.schema.org/SiteNavigationElement">
+                        <!-- mobile main_menu -->
+                        <div class="page-header__main-menu__dropdown">
+                            <ul class="page-header__navigation-menu__wrapper">
+                                    <li class="lc-navigation-menu__item">
+                                        <a class="Link link" href="">
+                                            <span>
+                                                <svg alt="Search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="transform: scale(1);">
+                                                    <path d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"></path>
+                                                </svg>
+                                            </span>
+                                        </a>
+                                    </li>
+                                     <li class="lc-navigation-menu__item">
+                                        <a class="Link link" href="">
+                                            <span>
+                                                <svg alt="Search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="transform: scale(1);">
+                                                    <path d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"></path>
+                                                </svg>
+                                            </span>
+                                        </a>
+                                    </li>
+                                     <li class="lc-navigation-menu__item">
+                                        <a class="Link link" href="">
+                                            <span>
+                                                <svg alt="Search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="transform: scale(1);">
+                                                    <path d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"></path>
+                                                </svg>
+                                            </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <main class="page_container-main">
+            <div class="page_container-placeholder"></div>
+            <div class="page_container-center">
+                <div class="page-content">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </main>
+        <div id="sidebar">
+            <h2>My blog</h2>
+            <p>
+                This is my blog.
+                I've written {% total_posts %} post so far.
+            </p>
+            <p>
+                <a class="Link link" href="{% url 'blog:post_feed' %}">
+                    Subscribe to my RSS feed
+                </a>
+            </p>
+            <h3>Latest posts</h3>
+            {% show_latest_posts 3 %}
+            <h3>Most commented posts</h3>
+            {% get_most_commented_posts as most_commented_posts %}
+            <ul>
+                {% for post in most_commented_posts %}
+                 <li class="lc-navigation-menu__item">
+                    <a class="Link link" href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <footer class="page-footer"></footer>
+    </body>
+</html>

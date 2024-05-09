@@ -1,111 +1,76 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.postgres.search import SearchQuery, SearchRank
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, HttpResponse
 from django.views.decorators.http import require_POST
-from django.core.mail import send_mail
-from django.db.models import Count
 
-from taggit.models import Tag
-
-from blog.models import Post
-from blog.forms import EmailPostForm, CommentForm, SearchForm
+from blog import services
 
 
 def post_list_view(request, tag_slug=None):
-    post_list = Post.published.all()
+    post_list = services.get_all_public_posts()
 
-    tag = None
-    if tag_slug:
-        tag = get_object_or_404(Tag, slug=tag_slug)
-        post_list = post_list.filter(tags__in=[tag])
+    post_list, tag = services.get_posts_by_tags_and_tags(post_list, tag_slug)
 
-    paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page', 1)
-
-    try:
-        posts = paginator.page(page_number)
-    except PageNotAnInteger:
-        posts = paginator.page(1)
-    except EmptyPage:
-        posts = paginator.page(paginator.num_pages)
+    posts = services.get_posts_paginator(post_list, page_number)
 
     return render(request, "blog/post/list.html", {'posts': posts, 'tag': tag})
 
 
 def post_detail(request, year, month, day, post):
-    post = get_object_or_404(Post,
-                             status=Post.Status.PUBLISHED,
-                             slug=post,
-                             publish__year=year,
-                             publish__month=month,
-                             publish__day=day)
+    post = services.get_post(status='PB', slug=post,
+                             publish__year=year, publish__month=month, publish__day=day)
+    comments = services.get_post_comments(post)
 
-    comments = post.comments.filter(active=True)
-    form = CommentForm()
-
-    post_tags_ids = post.tags.values_list('id', flat=True)
-    similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
-    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
+    # you need to edit blog/post/detail.html template to add similar_posts
+    similar_posts = services.get_similar_posts(post)
 
     return render(request, 'blog/post/detail.html',
-                  {'post': post, 'comments': comments, 'form': form, 'similar_posts': similar_posts})
+                  {'post': post, 'comments': comments, 'similar_posts': similar_posts})
 
 
 def post_share(request, post_id):
-    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    post = services.get_post(id=post_id, status="PB")
+
     sent = False
 
     if request.method == 'POST':
-        form = EmailPostForm(request.POST)
+        data = request.POST.copy()
+        data['author'] = request.user.id
 
-        if form.is_valid():
-            cd = form.cleaned_data
-            post_url = request.build_absolute_uri(post.get_absolute_url())
-            subject = f"{cd['name']} recommends you read {post.title}"
-            message = f"Read {post.title} at {post_url}\n\n{cd['name']}\'s comments: {cd['comments']}"
-            send_mail(subject, message, 'your_account@gmail.com', [cd['to']])
-            sent = True
-    else:
-        form = EmailPostForm()
+        post_url = request.build_absolute_uri(post.get_absolute_url())
 
-    return render(request, 'blog/post/share.html', {'post': post, 'form': form, 'sent': sent})
+        sent = services.send_post_by_email(post_url, post, data)
+
+    return render(request, 'blog/post/share.html', {'post': post, 'sent': sent})
 
 
 @require_POST
 def post_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
-    comment = None
+    post = services.get_post(id=post_id, status="PB")
 
-    form = CommentForm(data=request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
+    data = request.POST.copy()
+    data['author'] = request.user.id
 
-        comment.post = post
+    comment = services.create_comment_for_post(post, data)
 
-        comment.save()
+    # return render(request, 'post.get_absolute_url#commentsBlock',
+    return render(request, 'blog/post/comment.html', {'post': post, 'comment': comment})
 
-    return render(request, 'blog/post/comment.html',
-                  {'post': post, 'form': form, 'comment': comment})
+
+def post_like(request, post_id):
+    # you need to add this function to make like work
+
+    return HttpResponse(f'OK - {post_id}')
 
 
 def post_search(request):
-    form = SearchForm()
     query = None
     results = []
 
     if 'query' in request.GET:
-        form = SearchForm(request.GET)
-        if form.is_valid():
-            query = form.cleaned_data['query']
+        request_get = request.GET
 
-            search_query = SearchQuery(query, config='english') | SearchQuery(query, config='russian')
-
-            print(dir(search_query))
-
-            results = Post.published.annotate(
-                rank=SearchRank('search_vector', search_query)
-            ).filter(search_vector=search_query).order_by('-rank')
+        query, results = services.get_search_query(request_get)
 
     return render(request, 'blog/post/search.html',
-                  {'form': form, 'query': query, 'results': results}
+                  {'query': query, 'results': results}
                   )

@@ -1,6 +1,22 @@
-<h2>Add a now comment</h2>
-<form action="{% url 'blog:post_comment' post.id %}" method="post">
-    {{ form.as_p }}
-    {% csrf_token %}
-    <p><input type="submit" value="Add Comment"></p>
-</form>
+{% if user.is_authenticated %}
+    <div>
+        <div class="article-block">
+            <h2>Add a now comment</h2>
+        </div>
+    </div>
+    <div>
+        <div class="article-block">
+            <form action="{% url 'blog:post_comment' post.id %}" method="post" id="comment_form">
+                <div>
+                    <textarea class="comment-textarea__real-Em" name="body" maxlength="2500" aria-label="Comment input field" placeholder="Write a comment" form="comment_form" id="comment_textarea"></textarea>
+                </div>
+                {% csrf_token %}
+                <div>
+                    <button class="search-btn btn" type="submit" value="Add Comment">
+                        <span>Add</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}

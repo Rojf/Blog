@@ -3,6 +3,7 @@ from django.db.models import Count
 from django import template
 
 import markdown
+import re
 
 from blog.models import Post
 
@@ -28,4 +29,17 @@ def get_most_commented_posts(count=5):
 
 @register.filter(name='markdown')
 def markdown_format(text):
-    return mark_safe(markdown.markdown(text))
+    extensions = ['extra', 'wikilinks', 'toc', 'smarty', 'sane_lists', 'nl2br', 'meta', 'legacy_em', 'legacy_attrs',
+                  'codehilite', 'admonition']
+
+    return mark_safe(markdown.markdown(text, extensions=extensions))
+
+
+@register.filter(name='markdown_filter')
+def markdown_format(text):
+    extensions = ['extra', 'wikilinks', 'toc', 'smarty', 'sane_lists','meta', 'legacy_em', 'legacy_attrs', 'codehilite',
+                  'admonition']
+
+    html_text = mark_safe(markdown.markdown(text, extensions=extensions))
+
+    return html_text

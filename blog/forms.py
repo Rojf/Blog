@@ -1,19 +1,27 @@
 from django import forms
 
+from blog.repositories import Repository
 from blog.models import Comment
 
 
-class CommentForm(forms.ModelForm):
+class _CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['name', 'email', 'body']
+        fields = ['body', 'author']
+
+
+class CommentForm(forms.Form):
+    body = forms.CharField()
+    # author = forms.ModelChoiceField(queryset=get_user())
+    author = forms.ModelChoiceField(queryset=Repository.UserRepository.all())
 
 
 class EmailPostForm(forms.Form):
-    name = forms.CharField(max_length=25)
+    # author = forms.ModelChoiceField(queryset=get_user())
+    author = forms.ModelChoiceField(queryset=Repository.UserRepository.all())
     email = forms.EmailField()
     to = forms.EmailField()
-    comments =forms.CharField(required=False, widget=forms.Textarea)
+    comments = forms.CharField(required=False, widget=forms.Textarea)
 
 
 class SearchForm(forms.Form):

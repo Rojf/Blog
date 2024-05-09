@@ -4,40 +4,71 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ post.title }}</h1>
-    <p class="date">
-        Published {{ post.publish }} by {{ post.author }}
-    </p>
-    {{ post.body|markdown }}
-    <p>
-        <a href="{% url 'blog:post_share' post.id %}">
-            Share this post
-        </a>
-    </p>
-    <h2>Similar Posts</h2>
-    {% for post in similar_posts %}
-        <p>
-            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-        </p>
-    {% empty %}
-        Ther are no similar posts yet.
-    {% endfor %}
-
-    {% with comments.count as total_comments %}
-        <h2>
-            {{  total_comments }} comment{{ total_comments|pluralize }}
-        </h2>
-    {% endwith %}
-    {% for comment in comments %}
-        <div class="comments">
-            <p class="info">
-                Comment {{ forloop.counter }} by {{comment.name }}
-                {{ comment.created }}
-            </p>
-            {{ comment.body|linebreaks }}
+<article class="page_container_content-block_item">
+    <div class="_37R6h8OheC">
+        <div>
+            <div class="article-block">
+                <h1 class="article-title article-title_h1">
+                    {{ post.title }}
+                </h1>
+            </div>
         </div>
-    {% empty %}
-        <p>There are no comments.</p>
-    {% endfor %}
-    {% include "blog/post/includes/comment_form.html" %}
+        <div>
+            {% include "blog/post/includes/socials-block.html" with param="scrollToComments('commentsBlock')"  %}
+        </div>
+        <div>
+            <div class="article-block">
+                {{ post.body|markdown_filter }}
+            </div>
+        </div>
+        <div>
+            {% include "blog/post/includes/socials-block.html" with param="scrollToComments" param_2='commentsBlock'  %}
+        </div>
+<!--        <p>-->
+<!--            <a class="Link link" href="{% url 'blog:post_share' post.id %}">-->
+<!--                Share this post-->
+<!--            </a>-->
+<!--        </p>-->
+        <div>
+            <div class="article_h2">
+                <h2>Similar Posts</h2>
+            </div>
+            {% for post in similar_posts %}
+                <p>
+                    <a class="Link link" href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                </p>
+            {% empty %}
+                Ther are no similar posts yet.
+            {% endfor %}
+        </div>
+        <div>
+            {% include "blog/post/includes/comment_form.html" %}
+        </div>
+        <div id="commentsBlock">
+            {% for comment in comments %}
+                <div class="comments-block">
+                    <div class="comments-block__noShrink">
+                        <div style="text-align: right">
+                            <a href="" rel="dofollow" target="_blank" data-testid="header-view-link" class="ui-channel-info__link" itemprop="url">
+                                <span class="channel-info__title">
+                                    {{ comment.author }}
+                                </span>
+                            </a>
+                        </div>
+                        <div class="ui-content-date_info">
+                            Published {{ comment.created }}
+                        </div>
+                    </div>
+                    <div class="comments-body">
+                        {{ comment.body|linebreaks }}
+                    </div>
+                </div>
+            {% empty %}
+                <div>
+                    <p>There are no comments.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</article>
 {% endblock %}

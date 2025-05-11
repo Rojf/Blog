@@ -4,6 +4,7 @@ from src.infrastructure.settings.base import *
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 DEBUG = True
 
@@ -13,11 +14,11 @@ DEBUG = True
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DEV_POSTGRES_DB'),
-#         'USER': os.environ.get('DEV_POSTGRES_USER'),
-#         'PASSWORD': os.environ.get('DEV_POSTGRES_PASSWORD'),
-#         'HOST': os.environ.get('DEV_POSTGRES_HOST'),
-#         'PORT': os.environ.get('DEV_POSTGRES_PORT'),
+#         'NAME': os.getenv('DEV_POSTGRES_DB'),
+#         'USER': os.getenv('DEV_POSTGRES_USER'),
+#         'PASSWORD': os.getenv('DEV_POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('DEV_POSTGRES_HOST'),
+#         'PORT': os.getenv('DEV_POSTGRES_PORT'),
 #     }
 # }
 
@@ -33,10 +34,10 @@ DATABASES = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = os.environ.get(''),
-EMAIL_HOST_USER = os.environ.get(''),
-EMAIL_HOST_POSSWORD = os.environ.get(''),
-EMAIL_PORT = os.environ.get(''),
+EMAIL_HOST = os.getenv('EMAIL_HOST'),
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER'),
+EMAIL_HOST_POSSWORD = os.getenv('EMAIL_HOST_POSSWORD'),
+EMAIL_PORT = os.getenv('EMAIL_PORT'),
 EMAIL_USE_TLS = True
 
 

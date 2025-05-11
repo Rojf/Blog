@@ -3,7 +3,7 @@ from src.infrastructure.settings.base import *
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
+SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 INSTALLED_APPS += [
     'rest_framework_simplejwt.token_blacklist',
@@ -17,21 +17,21 @@ DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': os.environ.get('POSTGRES_PORT'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('HOST', 'db'),
+        'PORT': os.getenv('POSTGRES_PORT'),
     }
 }
 
 # Configuration of the email server.
 # https://docs.djangoproject.com/en/5.0/topics/email/
 
-EMAIL_HOST = os.environ.get(''),
-EMAIL_HOST_USER = os.environ.get(''),
-EMAIL_HOST_POSSWORD = os.environ.get(''),
-EMAIL_PORT = os.environ.get(''),
+EMAIL_HOST = os.getenv(''),
+EMAIL_HOST_USER = os.getenv(''),
+EMAIL_HOST_POSSWORD = os.getenv(''),
+EMAIL_PORT = os.getenv(''),
 EMAIL_USE_TLS = True
 
 

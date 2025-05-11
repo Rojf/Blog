@@ -3,6 +3,8 @@ import os
 from src.infrastructure.settings.base import *
 
 
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+
 DEBUG = True
 
 # Database
